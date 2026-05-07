@@ -28,18 +28,21 @@ const projects = [
 	{
 		title: 'Hnm',
 		description: 'My personal wedding invitation website. Close to my heart.',
+		image: '/hnm_pic.png',
 		technologies: [
 			{ name: 'Next.js', icon: 'https://icon.icepanel.io/Technology/svg/Next.js.svg' },
 			{ name: 'Vercel', icon: 'https://icon.icepanel.io/Technology/svg/Vercel.svg' },
 		],
-		link: 'https://hisolerandmilan.com',
+		link: 'https://hisolermilan.com',
 	},
 	{
 		title: 'HRIS',
 		description: 'Your business, in one place. Attendance, Leaves, Inventory, in one easy click.',
+		images: ['/hris1_pic.png', '/hris2_pic.png'],
 		technologies: [
 			{ name: 'React', icon: 'https://icon.icepanel.io/Technology/svg/React.svg' },
 			{ name: 'Laravel', icon: 'https://icon.icepanel.io/Technology/svg/Laravel.svg' },
+			{ name: 'MySQL', icon: 'https://icon.icepanel.io/Technology/svg/MySQL.svg' },
 		],
 		link: 'https://hris.miln.dev',
 	},
@@ -165,7 +168,22 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 							<article class:list={['project-panel spotlight-card', { 'project-panel--reverse': index % 2 === 1 }]} data-reveal={index % 2 === 0 ? 'left' : 'right'}>
 								<span class="spotlight-border" aria-hidden="true"></span>
 								<div class="project-card__image" aria-label={`${project.title} image placeholder`}>
-									<span>{project.title}</span>
+									{project.images ? (
+										<div class="project-card__slideshow">
+											{project.images.map((image, imageIndex) => (
+												<img
+													src={image}
+													alt={`${project.title} preview ${imageIndex + 1}`}
+													loading="lazy"
+													style={`--slide-index: ${imageIndex};`}
+												/>
+											))}
+										</div>
+									) : project.image ? (
+										<img src={project.image} alt={`${project.title} preview`} loading="lazy" />
+									) : (
+										<span>{project.title}</span>
+									)}
 								</div>
 								<div class="project-card__body">
 									<div>
@@ -265,12 +283,24 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 	let lastScrollY = window.scrollY;
 	let scrollDirection: 'up' | 'down' = 'down';
 
-	const renderBackgroundText = (text: string) => {
-		if (!backgroundText || (backgroundText.dataset.pattern === text && backgroundText.childElementCount > 0)) return;
+	const getBackgroundTextCount = (text: string) => {
+		const estimatedTileWidth = Math.max(text.length * 24 + 28, 110);
+		const estimatedTileHeight = 50;
+		const viewportArea = window.innerWidth * window.innerHeight;
+		const tileArea = estimatedTileWidth * estimatedTileHeight;
+
+		return Math.ceil(viewportArea / tileArea * 2.4);
+	};
+
+	const renderBackgroundText = (text: string, force = false) => {
+		if (!backgroundText) return;
+
+		const textCount = getBackgroundTextCount(text);
+		if (!force && backgroundText.dataset.pattern === text && backgroundText.childElementCount >= textCount) return;
 
 		backgroundText.dataset.pattern = text;
 		backgroundText.replaceChildren(
-			...Array.from({ length: 180 }, () => {
+			...Array.from({ length: textCount }, () => {
 				const span = document.createElement('span');
 				span.textContent = text;
 				return span;
@@ -279,6 +309,10 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 	};
 
 	renderBackgroundText(backgroundText?.dataset.pattern ?? 'miln.dev');
+
+	window.addEventListener('resize', () => {
+		renderBackgroundText(backgroundText?.dataset.pattern ?? 'miln.dev', true);
+	});
 
 	document.addEventListener('pointermove', (event) => {
 		if (!cursorGlow || event.pointerType !== 'mouse') return;
@@ -301,16 +335,29 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 		lastScrollY = currentScrollY;
 	}, { passive: true });
 
-	const observer = new IntersectionObserver((entries) => {
-		const activeEntry = entries
-			.filter((entry) => entry.isIntersecting)
-			.sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+	const updateActiveBackgroundText = () => {
+		const viewportCenter = window.innerHeight / 2;
+		const activeSection = sections
+			.map((section) => {
+				const rect = section.getBoundingClientRect();
+				const sectionCenter = rect.top + rect.height / 2;
+				return {
+					section,
+					distance: Math.abs(sectionCenter - viewportCenter),
+				};
+			})
+			.sort((a, b) => a.distance - b.distance)[0]?.section;
 
-		const nextPattern = activeEntry?.target.getAttribute('data-bg-text');
+		const nextPattern = activeSection?.getAttribute('data-bg-text');
 		if (nextPattern) renderBackgroundText(nextPattern);
-	}, { threshold: [0.45, 0.6, 0.75] });
+	};
+
+	const observer = new IntersectionObserver(() => {
+		updateActiveBackgroundText();
+	}, { threshold: [0, 0.25, 0.5, 0.75, 1] });
 
 	sections.forEach((section) => observer.observe(section));
+	document.addEventListener('scroll', updateActiveBackgroundText, { passive: true });
 
 	const revealObserver = new IntersectionObserver((entries) => {
 		entries.forEach((entry) => {
@@ -440,7 +487,7 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 		pointer-events: none;
 		color: #faf8f2;
 		font-size: 1.875rem;
-		font-weight: 700;
+		font-weight: 500;
 		line-height: 1;
 		letter-spacing: 0;
 		opacity: 0.95;
@@ -476,6 +523,8 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 	.spotlight-card {
 		--spotlight-size: 520px;
 		--spotlight-color: rgba(143, 185, 216, 0.16);
+		--spotlight-border-width: 2px;
+		--spotlight-border-strength: 0.76;
 		position: relative;
 		border-color: transparent !important;
 	}
@@ -509,15 +558,15 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 
 	.spotlight-border {
 		position: absolute;
-		inset: -1.5px;
+		inset: 0;
 		z-index: 2;
 		border-radius: inherit;
-		padding: 1.5px;
+		padding: var(--spotlight-border-width);
 		background: radial-gradient(
 			circle var(--spotlight-size) at var(--spotlight-x, -999px) var(--spotlight-y, -999px),
-			rgba(143, 185, 216, 0.72),
-			rgba(143, 185, 216, 0.26) 34%,
-			transparent 74%
+			rgba(95, 149, 189, var(--spotlight-border-strength)),
+			rgba(143, 185, 216, calc(var(--spotlight-border-strength) * 0.46)) 36%,
+			transparent 78%
 		);
 		opacity: 0;
 		pointer-events: none;
@@ -691,13 +740,17 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 	}
 
 	.project-panel.spotlight-card {
-		--spotlight-size: 760px;
+		--spotlight-size: 860px;
 		--spotlight-color: rgba(143, 185, 216, 0.14);
+		--spotlight-border-width: 2.5px;
+		--spotlight-border-strength: 0.95;
 	}
 
 	.name-lockup__avatar.spotlight-card {
-		--spotlight-size: 360px;
+		--spotlight-size: 430px;
 		--spotlight-color: rgba(143, 185, 216, 0.18);
+		--spotlight-border-width: 2.5px;
+		--spotlight-border-strength: 0.95;
 	}
 
 	.project-panel--reverse {
@@ -723,6 +776,7 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 		min-height: 100%;
 		align-items: center;
 		justify-content: center;
+		overflow: hidden;
 		background:
 			radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0) 38%),
 			linear-gradient(135deg, rgba(217, 236, 248, 0.68), rgba(143, 185, 216, 0.32));
@@ -731,6 +785,39 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 		font-size: 0.85rem;
 		font-weight: 700;
 		text-transform: uppercase;
+	}
+
+	.project-card__image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+
+	.project-card__slideshow {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+
+	.project-card__slideshow img {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		animation: project-slideshow 7s ease-in-out infinite;
+		animation-delay: calc(var(--slide-index) * 3.5s);
+	}
+
+	@keyframes project-slideshow {
+		0%, 42% {
+			opacity: 1;
+		}
+		50%, 92% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
 	}
 
 	.project-panel--reverse .project-card__image {
