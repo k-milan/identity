@@ -18,7 +18,7 @@ const projects = [
 	{
 		title: 'Penny',
 		description: 'Opinionated budget tracking. How I do it.',
-		images: ['/penny1_pic.png', '/penny2_pic.png', '/penny3_pic.png', '/penny4_pic.png'],
+		images: ['/penny1_pic.webp', '/penny2_pic.webp', '/penny3_pic.webp', '/penny4_pic.webp'],
 		technologies: [
 			{ name: 'React', icon: 'https://icon.icepanel.io/Technology/svg/React.svg' },
 			{ name: 'Laravel', icon: 'https://icon.icepanel.io/Technology/svg/Laravel.svg' },
@@ -29,7 +29,7 @@ const projects = [
 	{
 		title: 'Hnm',
 		description: 'My personal wedding invitation website. Close to my heart.',
-		image: '/hnm_pic.png',
+		image: '/hnm_pic.webp',
 		technologies: [
 			{ name: 'Next.js', icon: 'https://icon.icepanel.io/Technology/svg/Next.js.svg' },
 			{ name: 'Vercel', icon: 'https://icon.icepanel.io/Technology/svg/Vercel.svg' },
@@ -39,7 +39,7 @@ const projects = [
 	{
 		title: 'HRIS',
 		description: 'Your business, in one place. Attendance, Leaves, Inventory, in one easy click.',
-		images: ['/hris1_pic.png', '/hris2_pic.png'],
+		images: ['/hris1_pic.webp', '/hris2_pic.webp'],
 		technologies: [
 			{ name: 'React', icon: 'https://icon.icepanel.io/Technology/svg/React.svg' },
 			{ name: 'Laravel', icon: 'https://icon.icepanel.io/Technology/svg/Laravel.svg' },
@@ -127,7 +127,15 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 				<div class="name-lockup">
 					<div class="name-lockup__avatar spotlight-card" aria-hidden="true">
 						<span class="spotlight-border" aria-hidden="true"></span>
-						<img src="/smile_kris.png" alt="" class="name-lockup__avatar-image" />
+						<img
+							src="/smile_kris.webp"
+							alt=""
+							class="name-lockup__avatar-image"
+							width="900"
+							height="1200"
+							decoding="async"
+							fetchpriority="high"
+						/>
 					</div>
 					<div>
 						<h1 class="name-lockup__title">
@@ -176,12 +184,20 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 													src={image}
 													alt={`${project.title} preview ${imageIndex + 1}`}
 													loading="lazy"
+													decoding="async"
+													sizes="(max-width: 1023px) calc(100vw - 2rem), 38rem"
 													style={`--slide-index: ${imageIndex};`}
 												/>
 											))}
 										</div>
 									) : project.image ? (
-										<img src={project.image} alt={`${project.title} preview`} loading="lazy" />
+										<img
+											src={project.image}
+											alt={`${project.title} preview`}
+											loading="lazy"
+											decoding="async"
+											sizes="(max-width: 1023px) calc(100vw - 2rem), 38rem"
+										/>
 									) : (
 										<span>{project.title}</span>
 									)}
@@ -195,7 +211,7 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 										<ul class="tech-list" aria-label={`${project.title} technologies`}>
 											{project.technologies.map((technology) => (
 												<li>
-													<img src={technology.icon} alt={technology.name} title={technology.name} loading="lazy" />
+													<img src={technology.icon} alt={technology.name} title={technology.name} loading="lazy" decoding="async" />
 												</li>
 											))}
 										</ul>
@@ -218,7 +234,7 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 						{technologies.map((technology, index) => (
 							<li class="technology-tile spotlight-card" style={`--stagger: ${index * 55}ms;`} title={technology.name}>
 								<span class="spotlight-border" aria-hidden="true"></span>
-								<img src={technology.icon} alt={technology.name} loading="lazy" />
+								<img src={technology.icon} alt={technology.name} loading="lazy" decoding="async" />
 							</li>
 						))}
 					</ul>
