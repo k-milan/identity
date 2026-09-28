@@ -58,6 +58,29 @@ const projects = [
 		],
 		link: 'https://courte.miln.dev'
 	},
+	{
+		title: 'UPin',
+		description: 'A quiet, daily-first to-do app for organizing tasks into flexible daily buckets.',
+		image: '/upin_icon.png',
+		imageMode: 'icon',
+		technologies: [
+			{ name: 'Next.js', icon: 'https://icon.icepanel.io/Technology/svg/Next.js.svg' },
+			{ name: 'React', icon: 'https://icon.icepanel.io/Technology/svg/React.svg' },
+			{ name: 'PostgresSQL', icon: 'https://icon.icepanel.io/Technology/svg/PostgresSQL.svg' },
+		],
+		link: 'https://upin.miln.dev',
+	},
+	{
+		title: 'Sparkle',
+		description: 'A native macOS menu-bar companion that lets you know when ChatGPT or Claude needs your attention.',
+		image: '/sparkle_icon.png',
+		imageMode: 'icon',
+		technologies: [
+			{ name: 'Swift', icon: 'https://icon.icepanel.io/Technology/svg/Swift.svg' },
+			{ name: 'Apple', icon: 'https://icon.icepanel.io/Technology/svg/Apple.svg' },
+		],
+		link: 'https://github.com/k-milan/sparkle',
+	},
 ]
 
 const technologyGroups = [
@@ -177,7 +200,7 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 						{projects.map((project, index) => (
 							<article class:list={['project-panel spotlight-card', { 'project-panel--reverse': index % 2 === 1 }]} data-reveal={index % 2 === 0 ? 'left' : 'right'}>
 								<span class="spotlight-border" aria-hidden="true"></span>
-								<div class="project-card__image" aria-label={`${project.title} image placeholder`}>
+								<div class:list={['project-card__image', { 'project-card__image--icon': project.imageMode === 'icon' }]} aria-label={`${project.title} image placeholder`}>
 									{project.images ? (
 										<div class="project-card__slideshow">
 											{project.images.map((image, imageIndex) => (
@@ -810,6 +833,12 @@ const technologies = technologyGroups.flatMap((group) => group.items)
 		height: 100%;
 		object-fit: cover;
 		object-position: center;
+	}
+
+	.project-card__image--icon img {
+		width: min(64%, 15rem);
+		height: auto;
+		filter: drop-shadow(0 1.25rem 1.5rem rgba(34, 34, 34, 0.16));
 	}
 
 	.project-card__slideshow {
